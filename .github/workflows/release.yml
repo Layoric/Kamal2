@@ -33,11 +33,8 @@ jobs:
         run: docker context create remote --docker "host=ssh://root@kamal.reidodon.net"
       - name: Test context
         run: |
-          docker context use remote
-          docker context ls
-          docker ps
-          docker compose ls
-          docker context use default
+          ssh -p 22 root@kamal.reidodon.net "docker ps"
+          ssh -p 22 root@kamal.reidodon.net "echo $DOCKER_HOST"
           
         
 
