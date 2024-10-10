@@ -18,9 +18,10 @@ jobs:
       KAMAL_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - uses: webfactory/ssh-agent@v0.8.0
+      - uses: kielabokkie/ssh-key-and-known-hosts-action@v1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: kamal.reidodon.net
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -28,7 +29,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Create context
-        run: docker context create remote --docker "host=ssh://${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}"
+        run: docker context create remote --docker "host=ssh://root@kamal.reidodon.net"
       - name: Test context
         run: |
           docker context use remote
