@@ -2,7 +2,7 @@
 service: Kamal2
 
 # Name of the container image.
-image: Layoric/Kamal2
+image: layoric/kamal2:latest
 
 # Deploy to these servers.
 servers:
