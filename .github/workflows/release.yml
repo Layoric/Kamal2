@@ -37,18 +37,9 @@ jobs:
       - name: Create Docker context
         run: docker context create remote --docker "host=ssh://root@kamal.reidodon.net"
 
-      - name: Run remote db migrations
-        uses: appleboy/ssh-action@v1.1.0
-        env:
-          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ github.actor }}
-        with:
-          host: kamal.reidodon.net
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          envs: APPTOKEN,USERNAME
-          script: |
-            set -e
-            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
-            # Add your database migration commands here
+      - name: Test remote context
+        run: docker --context remote ps
+        
+      - name: Build and push image
+        run: docker --context remote build -t ghcr.io/layoric/kamal2:latest .
+          
