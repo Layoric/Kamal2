@@ -18,11 +18,6 @@ jobs:
       KAMAL_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup SSH
-        uses: MrSquaare/ssh-setup-action@v3
-        with:
-          host: kamal.reidodon.net
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -31,10 +26,18 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Create context
         run: docker context create remote --docker "host=ssh://root@kamal.reidodon.net"
-      - name: Test context
-        run: |
-          ssh -p 22 root@kamal.reidodon.net "docker ps"
-          ssh -p 22 root@kamal.reidodon.net "echo $DOCKER_HOST"
-          
         
-
+      - name: Run remote db migrations
+        uses: appleboy/ssh-action@v0.1.5
+        env:
+          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+        with:
+          host: kamal.reidodon.net
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          envs: APPTOKEN,USERNAME
+          script: |
+            set -e
+            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
