@@ -85,6 +85,7 @@ jobs:
       DOCKER_BUILDKIT: 1
       KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
+      KAMAL_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_AUTH_SOCK: /tmp/ssh_agent.sock
     steps:
       - uses: actions/checkout@v4

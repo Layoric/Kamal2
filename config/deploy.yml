@@ -52,8 +52,9 @@ builder:
 
 # Use a different ssh user than root
 #
-# ssh:
-#   user: app
+ssh:
+  keys_only: true
+  key_data: [ "$KAMAL_SSH_KEY" ]
 
 # Use a persistent storage volume.
 #
