@@ -14,7 +14,7 @@ on:
 
 jobs:
   push_to_registry:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion != 'failure' }}
     steps:
       # Checkout latest or specific tag
@@ -80,6 +80,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: push_to_registry
     env:
       DOCKER_BUILDKIT: 1
       KAMAL_REGISTRY_PASSWORD: ${{ github.actor }}
