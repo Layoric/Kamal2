@@ -49,5 +49,5 @@ jobs:
         id: kamal-deploy
         run: |
           kamal lock release -v
-          kamal deploy
+          kamal deploy -P
           
