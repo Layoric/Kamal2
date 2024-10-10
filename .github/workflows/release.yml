@@ -85,11 +85,13 @@ jobs:
       DOCKER_BUILDKIT: 1
       KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
+      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
     steps:
       - uses: actions/checkout@v4
       - uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-auth-sock: ${{ env.SSH_AUTH_SOCK }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.3.0
