@@ -7,6 +7,9 @@
     <PublishProfile>DefaultContainer</PublishProfile>
   </PropertyGroup>
   <ItemGroup>
+    <ContainerLabel Include="service" Value="Kamal2" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="Kamal2" />
     <Using Include="ServiceStack" />
   </ItemGroup>
