@@ -28,7 +28,7 @@ jobs:
         run: docker context create remote --docker "host=ssh://root@kamal.reidodon.net"
         
       - name: Run remote db migrations
-        uses: appleboy/ssh-action@v0.1.5
+        uses: appleboy/ssh-action@v1.1.0
         env:
           APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ secrets.DEPLOY_USERNAME }}
