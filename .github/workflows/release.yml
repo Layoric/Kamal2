@@ -111,5 +111,5 @@ jobs:
       - name: Kamal Deploy
         id: kamal-deploy
         run: |
-          kamal lock release
-          kamal deploy
+          kamal lock release -v
+          kamal deploy -v
