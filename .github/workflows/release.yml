@@ -1,8 +1,10 @@
 name: Release and Deploy
 
 on:
-  push:
-    branches: [main, master]
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
   workflow_dispatch:
 
 env:
