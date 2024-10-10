@@ -18,28 +18,29 @@ jobs:
       KAMAL_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
-
+      - name: Add host to known_hosts
+        run: ssh-keyscan -H kamal.reidodon.net >> ~/.ssh/known_hosts
+      - uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3.0
+          bundler-cache: true
+      - run: gem install kamal -v 2.1.2
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.8.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add host to known_hosts
-        run: ssh-keyscan -H kamal.reidodon.net >> ~/.ssh/known_hosts
-
-      - name: Create Docker context
-        run: docker context create remote --docker "host=ssh://root@kamal.reidodon.net"
-
-      - name: Test remote context
-        run: docker --context remote ps
-        
-      - name: Build and push image
-        run: docker --context remote build -t ghcr.io/layoric/kamal2:latest .
+          driver-opts: image=moby/buildkit:master
+      - name: Kamal Deploy
+        id: kamal-deploy
+        run: |
+          kamal lock release -v
+          kamal deploy
           
