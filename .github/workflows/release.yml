@@ -24,11 +24,6 @@ jobs:
       - name: Set up environment variables
         run: |
           echo "image_repository_name=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          if [ ! -z "${{ secrets.APPSETTINGS_PATCH }}" ]; then
-            echo "HAS_APPSETTINGS_PATCH=true" >> $GITHUB_ENV
-          else
-            echo "HAS_APPSETTINGS_PATCH=false" >> $GITHUB_ENV
-          fi
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -41,16 +36,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0'
-
-      - name: Apply Production AppSettings
-        if: env.HAS_APPSETTINGS_PATCH == 'true'
-        run: |
-          dotnet tool install -g x
-          cat <<EOF >> appsettings.json.patch
-          ${{ secrets.APPSETTINGS_PATCH }}
-          EOF
-          x patch appsettings.json.patch
-        working-directory: ./MyApp
 
       - name: Build and push Docker image
         run: |
