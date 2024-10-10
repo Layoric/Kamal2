@@ -103,6 +103,9 @@ jobs:
         run: |
           docker context use remote
           docker context ls
+          docker ps
+          docker compose ls
+          
           
         
 
