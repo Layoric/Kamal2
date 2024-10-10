@@ -83,8 +83,8 @@ jobs:
     needs: push_to_registry
     env:
       DOCKER_BUILDKIT: 1
-      KAMAL_REGISTRY_PASSWORD: ${{ github.actor }}
-      KAMAL_REGISTRY_USERNAME: ${{ secrets.GITHUB_TOKEN }}
+      KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
