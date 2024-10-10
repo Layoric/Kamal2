@@ -86,30 +86,23 @@ jobs:
       KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
       KAMAL_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
     steps:
       - uses: actions/checkout@v4
-      - uses: webfactory/ssh-agent@v0.8.0
+      - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh-auth-sock: ${{ env.SSH_AUTH_SOCK }}
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.3.0
-          bundler-cache: true
-      - run: gem install kamal -v 2.1.2
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: image=moby/buildkit:master
-      - name: Kamal Deploy
-        id: kamal-deploy
+      - name: Create context
+        run: docker context create remote --docker "host=ssh://${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}"
+      - name: Test context
         run: |
-          kamal lock release -v
-          kamal deploy -v
+          docker context use remote
+          docker context ls
+          
+        
+
