@@ -3,12 +3,81 @@ permissions:
   packages: write
   contents: write
 on:
-  push:
-    branches:
-      - main
-      - master
+  release:
+    types: [published]
+  workflow_run:
+    workflows: ["Build"]
+    branches: [main,master]
+    types:
+      - completed
+  workflow_dispatch:
 
 jobs:
+  push_to_registry:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'failure' }}
+    steps:
+      # Checkout latest or specific tag
+      - name: checkout
+        if: ${{ github.event.inputs.version == '' || github.event.inputs.version == 'latest' }}
+        uses: actions/checkout@v3
+      - name: checkout tag
+        if: ${{ github.event.inputs.version != '' && github.event.inputs.version != 'latest' }}
+        uses: actions/checkout@v3
+        with:
+          ref: refs/tags/${{ github.event.inputs.version }}
+          
+      # Assign environment variables used in subsequent steps
+      - name: Env variable assignment
+        run: echo "image_repository_name=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      # TAG_NAME defaults to 'latest' if not a release or manual deployment
+      - name: Assign version
+        run: |
+          echo "TAG_NAME=latest" >> $GITHUB_ENV
+          if [ "${{ github.event.release.tag_name }}" != "" ]; then
+            echo "TAG_NAME=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          fi;
+          if [ "${{ github.event.inputs.version }}" != "" ]; then
+            echo "TAG_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          fi;
+          if [ ! -z "${{ secrets.APPSETTINGS_PATCH }}" ]; then
+            echo "HAS_APPSETTINGS_PATCH=true" >> $GITHUB_ENV
+          else
+            echo "HAS_APPSETTINGS_PATCH=false" >> $GITHUB_ENV
+          fi;
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+        
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+          
+      - name: Install x tool
+        if: env.HAS_APPSETTINGS_PATCH == 'true'
+        run: dotnet tool install -g x
+          
+      - name: Apply Production AppSettings
+        if: env.HAS_APPSETTINGS_PATCH == 'true'
+        working-directory: ./MyApp
+        run: | 
+          cat <<EOF >> appsettings.json.patch
+          ${{ secrets.APPSETTINGS_PATCH }}
+          EOF
+          x patch appsettings.json.patch
+      
+      
+      # Build and push new docker image
+      - name: Build and push Docker image
+        run: |
+          dotnet publish --os linux --arch x64 -c Release -p:ContainerRepository=${{ env.image_repository_name }} -p:ContainerRegistry=ghcr.io -p:ContainerImageTags=${{ env.TAG_NAME }} -p:ContainerPort=80
+
   deploy:
     runs-on: ubuntu-latest
     env:
@@ -50,4 +119,3 @@ jobs:
         run: |
           kamal lock release -v
           kamal deploy -P --version latest
-          
