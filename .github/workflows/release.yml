@@ -100,7 +100,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Kamal Deploy
         id: kamal-deploy
         run: |
