@@ -96,7 +96,7 @@ jobs:
         with:
           ruby-version: 3.3.0
           bundler-cache: true
-      - run: gem install kamal
+      - run: gem install kamal==2.1.2
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
