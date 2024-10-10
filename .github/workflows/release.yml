@@ -95,6 +95,6 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-      - uses: docker/setup-buildx-action@v3
-      - run: kamal lock release
-      - run: kamal redeploy
+      - run: |
+          kamal lock release
+          kamal redeploy
