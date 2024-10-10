@@ -1,4 +1,7 @@
 name: Release
+permissions:
+  packages: write
+  contents: write
 concurrency:
   group: production
   cancel-in-progress: true
